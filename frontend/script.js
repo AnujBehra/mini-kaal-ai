@@ -73,7 +73,7 @@ questionForm.addEventListener('submit', async (e) => {
 
   // Basic input validation
   if (!question) {
-    showError('Please enter a question or reflection before asking.');
+    showError('Please enter a question before submitting.');
     return;
   }
 
@@ -133,11 +133,11 @@ function setLoading(isLoading) {
   if (isLoading) {
     loadingBox.style.display = 'flex';
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Reflecting on your question...';
+    submitBtn.textContent = 'Generating guidance...';
   } else {
     loadingBox.style.display = 'none';
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Seek Guidance';
+    submitBtn.textContent = 'Submit Question';
   }
 }
 

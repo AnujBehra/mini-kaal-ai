@@ -3,80 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini KAAL AI Guidance App</title>
+  <title>KAAL AI Guidance App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
+  <div class="container">
     <!-- Header -->
-    <header class="app-header">
-      <div class="brand-badge">KAAL AI</div>
-      <h1>Mini KAAL AI Guidance App</h1>
-      <p class="subtitle">Ancient Wisdom &bull; Modern Guidance</p>
-      <p class="intro-text">
-        A safe space for clarity, emotional balance, and thoughtful direction inspired by timeless wisdom.
-      </p>
+    <header class="header">
+      <h1>KAAL AI Guidance App</h1>
+      <p class="subtitle">Ask a question and receive guidance</p>
     </header>
 
-    <!-- Main Content Layout -->
-    <main class="main-content">
-      <!-- Left / Top Section: Ask Form & Guidance Display -->
-      <section class="ask-section">
+    <!-- Main Content Grid -->
+    <main class="main-grid">
+      <!-- Left Column: Question Form & Current Response -->
+      <section class="left-col">
         <div class="card">
-          <h2>Seek Guidance</h2>
-          <form id="question-form" class="question-form">
-            <label for="question-input">What is on your mind?</label>
+          <h2>Ask a Question</h2>
+          <form id="question-form">
+            <label for="question-input">Your Question:</label>
             <textarea
               id="question-input"
               rows="3"
-              placeholder="e.g. How can I stay calm when making a tough career decision?"
+              placeholder="Type your question here... (e.g., How do I prepare for a junior developer interview?)"
             ></textarea>
 
             <!-- Error message container -->
             <div id="error-box" class="error-box" style="display: none;"></div>
 
             <!-- Submit button -->
-            <button type="submit" id="submit-btn" class="submit-btn">
-              Seek Guidance
+            <button type="submit" id="submit-btn" class="btn-primary">
+              Submit Question
             </button>
           </form>
         </div>
 
-        <!-- Loading Indicator -->
+        <!-- Loading state -->
         <div id="loading-box" class="card loading-card" style="display: none;">
           <div class="spinner"></div>
-          <p>KAAL AI is reflecting and preparing your guidance...</p>
+          <p>Generating guidance, please wait...</p>
         </div>
 
-        <!-- Latest Guidance Response Display -->
+        <!-- Latest Guidance Response -->
         <div id="response-box" class="card response-card" style="display: none;">
-          <div class="response-badge">Wisdom &amp; Guidance</div>
-          <h3 id="response-question" class="response-question"></h3>
-          <div class="response-body">
-            <p id="response-text"></p>
-          </div>
+          <div class="tag">Latest Response</div>
+          <h3 id="response-question"></h3>
+          <p id="response-text" class="response-text"></p>
           <span id="response-time" class="timestamp"></span>
         </div>
       </section>
 
-      <!-- Right / Bottom Section: History List -->
-      <section class="history-section">
+      <!-- Right Column: History List -->
+      <section class="right-col">
         <div class="card history-card">
-          <h2>Previous Reflections &amp; History</h2>
+          <h2>Previous Questions &amp; Responses</h2>
           <div id="history-list" class="history-list">
-            <p class="empty-state">Loading previous questions...</p>
+            <p class="empty-state">Loading history...</p>
           </div>
         </div>
       </section>
     </main>
 
     <!-- Footer -->
-    <footer class="app-footer">
-      <p>Mini KAAL AI Guidance App &bull; Built with HTML, CSS, Vanilla JS, Node.js &amp; PostgreSQL</p>
+    <footer class="footer">
+      <p>Mini KAAL AI Guidance App &bull; HTML + CSS + JavaScript + Node.js + PostgreSQL</p>
     </footer>
   </div>
 
-  <!-- Vanilla JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>

@@ -10,29 +10,49 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '100kb' })); // Guard against oversized JSON payloads
 
-// Serve static frontend files (HTML, CSS, Vanilla JS)
+// Serve frontend static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Helper function to generate guidance response
-// If an AI API key is configured, it calls the Gemini AI model.
-// Otherwise, it returns relevant guidance inspired by KAAL AI's Gita wisdom.
+// Helper function: Input validation
+function validateQuestion(question) {
+  if (typeof question !== 'string') {
+    return 'Invalid question format.';
+  }
+  const clean = question.trim();
+  if (clean.length === 0) {
+    return 'Please enter a question before submitting.';
+  }
+  if (clean.length < 3) {
+    return 'Question must be at least 3 characters long.';
+  }
+  if (clean.length > 1000) {
+    return 'Question cannot exceed 1000 characters.';
+  }
+  return null; // Valid
+}
+
+// Helper function: Generate guidance response
 async function generateGuidance(question) {
-  // Check if Gemini API key is provided
+  // If Gemini API key is configured, call the API with a 7-second timeout
   if (process.env.GEMINI_API_KEY) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+
     try {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({
             contents: [
               {
                 parts: [
                   {
-                    text: `You are KAAL AI, a mental wellness and guidance companion inspired by the timeless wisdom of the Bhagavad Gita. Provide compassionate, grounding, and actionable guidance for this user question in 2-3 calm sentences: "${question}"`
+                    text: `You are KAAL AI, a thoughtful guidance assistant. Provide clear, encouraging, and actionable guidance for this question in 2-3 sentences: "${question}"`
                   }
                 ]
               }
@@ -41,64 +61,80 @@ async function generateGuidance(question) {
         }
       );
 
+      clearTimeout(timeout);
       const data = await response.json();
       if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
         return data.candidates[0].content.parts[0].text.trim();
       }
     } catch (err) {
-      console.error('AI API error, using fallback guidance:', err.message);
+      clearTimeout(timeout);
+      console.warn('AI API call skipped or timed out, using fallback guidance:', err.message);
     }
   }
 
-  // Fallback guidance inspired by KAAL AI core themes
+  // Fallback contextual guidance
   const lower = question.toLowerCase();
   if (lower.includes('stress') || lower.includes('anxiety') || lower.includes('worry') || lower.includes('fear')) {
-    return 'Take a deep breath and pause. As timeless wisdom teaches, a restless mind can be calmed through steady practice and gentle detachment. Focus only on what is in your hands today.';
+    return 'Take a deep breath and pause. Focus on what is within your control today, and break your challenges into smaller, manageable steps.';
   } else if (lower.includes('career') || lower.includes('job') || lower.includes('work') || lower.includes('interview')) {
-    return 'Focus wholeheartedly on your effort and preparation rather than being paralyzed by the outcome. Doing your duty with sincere dedication brings both competence and peace of mind.';
-  } else if (lower.includes('confused') || lower.includes('decision') || lower.includes('dilemma') || lower.includes('choice')) {
-    return 'Whenever clarity feels distant, quiet the noise and look inward. Choose the path aligned with your genuine values and long-term inner peace, and take the first step with confidence.';
-  } else if (lower.includes('fail') || lower.includes('mistake') || lower.includes('sad') || lower.includes('tired')) {
-    return 'Every difficulty carries a lesson for growth. Treat yourself with compassion, remember that change is a natural law of life, and take things one small, mindful step at a time.';
+    return 'Focus on mastering core fundamentals and building hands-on projects. Dedicated preparation and clear communication are key to interview success.';
+  } else if (lower.includes('study') || lower.includes('exam') || lower.includes('learn')) {
+    return 'Create a consistent daily study routine. Use active recall and short practice sessions rather than cramming all at once.';
+  } else if (lower.includes('confused') || lower.includes('decision') || lower.includes('choice')) {
+    return 'List your top priorities and evaluate which option aligns best with your long-term goals. Making a conscious decision and taking action brings clarity.';
   } else {
-    return `KAAL AI Guidance: For "${question}", allow yourself a moment of stillness. Clarify your next immediate action, approach it with patience, and trust your journey of continuous growth.`;
+    return `Guidance for "${question}": Clarify your primary goal, outline 2-3 immediate action steps, and execute them consistently.`;
   }
 }
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Mini KAAL AI Guidance API is running!' });
+// Health check endpoint (checks database connectivity)
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1;');
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      error: err.message
+    });
+  }
 });
 
-// API 1: Fetch previous questions and responses (chat history)
-app.get('/api/history', async (req, res) => {
+// API 1: Fetch previous questions and responses
+app.get('/api/history', async (req, res, next) => {
   try {
     const result = await pool.query(
-      'SELECT id, question, response, created_at FROM queries ORDER BY created_at DESC'
+      'SELECT id, question, response, created_at FROM queries ORDER BY created_at DESC LIMIT 50;'
     );
     res.json(result.rows);
   } catch (err) {
-    console.error('Error fetching history:', err.message);
-    res.status(500).json({ error: 'Failed to fetch history from database.' });
+    next(err);
   }
 });
 
 // API 2: Submit a question and get guidance
-app.post('/api/ask', async (req, res) => {
+app.post('/api/ask', async (req, res, next) => {
   try {
     const { question } = req.body;
 
-    // Basic input validation
-    if (!question || question.trim() === '') {
-      return res.status(400).json({ error: 'Please enter a question before submitting.' });
+    // Strong input validation
+    const validationError = validateQuestion(question);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
     }
 
     const cleanQuestion = question.trim();
 
-    // Generate guidance response
+    // Generate guidance
     const guidanceResponse = await generateGuidance(cleanQuestion);
 
-    // Save question and response to PostgreSQL
+    // Save to PostgreSQL using parameterized query
     const insertQuery = `
       INSERT INTO queries (question, response)
       VALUES ($1, $2)
@@ -106,21 +142,46 @@ app.post('/api/ask', async (req, res) => {
     `;
     const result = await pool.query(insertQuery, [cleanQuestion, guidanceResponse]);
 
-    // Return the newly created item
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('Error handling /api/ask:', err.message);
-    res.status(500).json({ error: 'Failed to generate guidance. Please try again.' });
+    next(err);
   }
 });
 
-// Start the server after initializing DB
+// Centralized error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err.message);
+  res.status(500).json({ error: 'Server error occurred. Please try again.' });
+});
+
+// Start server
+let server;
 initDB().then(() => {
-  const server = app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  server = app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 
   server.on('error', (err) => {
     console.error('Server error:', err.message);
   });
 });
+
+// Graceful shutdown handling
+const shutdown = async () => {
+  console.log('\nShutting down server gracefully...');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed.');
+    });
+  }
+  try {
+    await pool.end();
+    console.log('PostgreSQL connection pool closed.');
+  } catch (err) {
+    console.error('Error closing pool:', err.message);
+  }
+  process.exit(0);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
