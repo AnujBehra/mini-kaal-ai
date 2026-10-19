@@ -1,9 +1,12 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Connect to PostgreSQL database
+// Connect to PostgreSQL database (local or cloud)
+const isCloudDB = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/postgres'
+  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/postgres',
+  ssl: isCloudDB ? { rejectUnauthorized: false } : false
 });
 
 // Function to connect and create the table if it does not exist

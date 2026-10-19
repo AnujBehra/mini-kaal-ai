@@ -4,7 +4,15 @@
   "private": true,
   "description": "Mini KAAL AI Guidance App - HTML, CSS, Vanilla JS, Node.js & PostgreSQL",
   "scripts": {
+    "postinstall": "npm --prefix backend install",
+    "build": "npm --prefix backend install",
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
   }
 }

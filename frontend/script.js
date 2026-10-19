@@ -1,6 +1,7 @@
-// API Base URL
-// Uses relative path when running on port 5001, otherwise defaults to localhost:5001
-const API_URL = window.location.port === '5001' ? '' : 'http://localhost:5001';
+// Base API URL: relative path when served by Express (both locally & in production)
+const API_URL = (window.location.port && window.location.port !== '5001')
+  ? 'http://localhost:5001'
+  : '';
 
 // Get DOM elements
 const questionForm = document.getElementById('question-form');
