@@ -2,10 +2,9 @@
   "name": "mini-kaal-ai-guidance",
   "version": "1.0.0",
   "private": true,
-  "description": "Mini KAAL AI Guidance App - Full Stack",
+  "description": "Mini KAAL AI Guidance App - HTML, CSS, Vanilla JS, Node.js & PostgreSQL",
   "scripts": {
-    "server": "node backend/server.js",
-    "client": "npm run dev --prefix frontend",
-    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
   }
 }

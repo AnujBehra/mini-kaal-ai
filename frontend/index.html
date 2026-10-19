@@ -1,12 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mini KAAL AI Guidance App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini KAAL AI Guidance App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-badge">KAAL AI</div>
+      <h1>Mini KAAL AI Guidance App</h1>
+      <p class="subtitle">Ancient Wisdom &bull; Modern Guidance</p>
+      <p class="intro-text">
+        A safe space for clarity, emotional balance, and thoughtful direction inspired by timeless wisdom.
+      </p>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="main-content">
+      <!-- Left / Top Section: Ask Form & Guidance Display -->
+      <section class="ask-section">
+        <div class="card">
+          <h2>Seek Guidance</h2>
+          <form id="question-form" class="question-form">
+            <label for="question-input">What is on your mind?</label>
+            <textarea
+              id="question-input"
+              rows="3"
+              placeholder="e.g. How can I stay calm when making a tough career decision?"
+            ></textarea>
+
+            <!-- Error message container -->
+            <div id="error-box" class="error-box" style="display: none;"></div>
+
+            <!-- Submit button -->
+            <button type="submit" id="submit-btn" class="submit-btn">
+              Seek Guidance
+            </button>
+          </form>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading-box" class="card loading-card" style="display: none;">
+          <div class="spinner"></div>
+          <p>KAAL AI is reflecting and preparing your guidance...</p>
+        </div>
+
+        <!-- Latest Guidance Response Display -->
+        <div id="response-box" class="card response-card" style="display: none;">
+          <div class="response-badge">Wisdom &amp; Guidance</div>
+          <h3 id="response-question" class="response-question"></h3>
+          <div class="response-body">
+            <p id="response-text"></p>
+          </div>
+          <span id="response-time" class="timestamp"></span>
+        </div>
+      </section>
+
+      <!-- Right / Bottom Section: History List -->
+      <section class="history-section">
+        <div class="card history-card">
+          <h2>Previous Reflections &amp; History</h2>
+          <div id="history-list" class="history-list">
+            <p class="empty-state">Loading previous questions...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Mini KAAL AI Guidance App &bull; Built with HTML, CSS, Vanilla JS, Node.js &amp; PostgreSQL</p>
+    </footer>
+  </div>
+
+  <!-- Vanilla JavaScript -->
+  <script src="script.js"></script>
+</body>
 </html>

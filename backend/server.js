@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -11,9 +12,12 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
+// Serve static frontend files (HTML, CSS, Vanilla JS)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // Helper function to generate guidance response
-// If an AI API key is configured, it calls the AI model.
-// Otherwise, it returns relevant contextual guidance.
+// If an AI API key is configured, it calls the Gemini AI model.
+// Otherwise, it returns relevant guidance inspired by KAAL AI's Gita wisdom.
 async function generateGuidance(question) {
   // Check if Gemini API key is provided
   if (process.env.GEMINI_API_KEY) {
@@ -28,7 +32,7 @@ async function generateGuidance(question) {
               {
                 parts: [
                   {
-                    text: `You are KAAL AI, a supportive and wise guidance advisor. Give clear, encouraging, and actionable guidance for this user question in 2-4 sentences: "${question}"`
+                    text: `You are KAAL AI, a mental wellness and guidance companion inspired by the timeless wisdom of the Bhagavad Gita. Provide compassionate, grounding, and actionable guidance for this user question in 2-3 calm sentences: "${question}"`
                   }
                 ]
               }
@@ -46,23 +50,23 @@ async function generateGuidance(question) {
     }
   }
 
-  // Fallback intelligent guidance responses for demonstration
+  // Fallback guidance inspired by KAAL AI core themes
   const lower = question.toLowerCase();
-  if (lower.includes('career') || lower.includes('job') || lower.includes('interview')) {
-    return 'Focus on mastering core problem-solving and fundamental skills. Build practical real-world projects to showcase your abilities, and practice communicating your thought process clearly.';
-  } else if (lower.includes('study') || lower.includes('exam') || lower.includes('learn')) {
-    return 'Break down complex topics into smaller daily milestones. Practice active recall and build sample exercises to reinforce your learning, rather than passively reading.';
-  } else if (lower.includes('code') || lower.includes('bug') || lower.includes('programming') || lower.includes('error')) {
-    return 'Carefully read the error stack trace to locate the exact file and line. Isolate the problem using print statements or debuggers, and test edge cases step-by-step.';
-  } else if (lower.includes('stress') || lower.includes('confused') || lower.includes('tired')) {
-    return 'Take a short break to clear your mind. Remember that progress comes with consistency, not speed. Focus on one small task at a time.';
+  if (lower.includes('stress') || lower.includes('anxiety') || lower.includes('worry') || lower.includes('fear')) {
+    return 'Take a deep breath and pause. As timeless wisdom teaches, a restless mind can be calmed through steady practice and gentle detachment. Focus only on what is in your hands today.';
+  } else if (lower.includes('career') || lower.includes('job') || lower.includes('work') || lower.includes('interview')) {
+    return 'Focus wholeheartedly on your effort and preparation rather than being paralyzed by the outcome. Doing your duty with sincere dedication brings both competence and peace of mind.';
+  } else if (lower.includes('confused') || lower.includes('decision') || lower.includes('dilemma') || lower.includes('choice')) {
+    return 'Whenever clarity feels distant, quiet the noise and look inward. Choose the path aligned with your genuine values and long-term inner peace, and take the first step with confidence.';
+  } else if (lower.includes('fail') || lower.includes('mistake') || lower.includes('sad') || lower.includes('tired')) {
+    return 'Every difficulty carries a lesson for growth. Treat yourself with compassion, remember that change is a natural law of life, and take things one small, mindful step at a time.';
   } else {
-    return `KAAL AI Guidance: To address "${question}", define your specific end goal first, outline 2-3 immediate action steps, and execute them consistently. Continuous feedback leads to success.`;
+    return `KAAL AI Guidance: For "${question}", allow yourself a moment of stillness. Clarify your next immediate action, approach it with patience, and trust your journey of continuous growth.`;
   }
 }
 
-// Basic route to check if server is running
-app.get('/', (req, res) => {
+// Health check route
+app.get('/api/health', (req, res) => {
   res.json({ message: 'Mini KAAL AI Guidance API is running!' });
 });
 

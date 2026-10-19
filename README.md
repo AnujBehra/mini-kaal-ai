@@ -1,183 +1,172 @@
 # Mini KAAL AI - Guidance Web Application
 
-A full-stack web application built for the **KAAL AI Full Stack Development Assignment**. This app allows users to submit questions and receive personalized guidance responses. All queries and responses are stored in a PostgreSQL database with timestamps and displayed in a chat history section.
+A lightweight, clean full-stack web application built for the **KAAL AI Full Stack Development Assignment**.
+
+This application allows users to ask questions and receive thoughtful, calming guidance inspired by timeless wisdom. All questions and responses are stored in a PostgreSQL database with timestamps and displayed in reverse-chronological order.
+
+Built with **pure HTML, CSS, Vanilla JavaScript, Node.js, Express, and PostgreSQL** — strictly without any frameworks, build tools, or complex abstractions.
 
 ---
 
-## 🚀 Tech Stack
+## 🏛️ Architecture & Tech Stack
 
-- **Frontend:** React (Vite), Pure Responsive CSS
-- **Backend:** Node.js, Express.js
-- **Database:** PostgreSQL (`pg` library)
-- **Guidance System:** Gemini AI API (with built-in contextual fallback guidance)
+```text
+┌────────────────────────────────────────────────────────┐
+│                        Frontend                        │
+│                 HTML + CSS + JavaScript                │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                        REST API                        │
+│               JavaScript fetch() requests              │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                        Backend                         │
+│                   Node.js + Express.js                 │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                       PostgreSQL                       │
+│              Questions, answers, timestamps            │
+└────────────────────────────────────────────────────────┘
+```
+
+- **Frontend:** Pure HTML5, CSS3, and Vanilla JavaScript (No React, No Vite, No build step)
+- **API Communication:** Browser-native `fetch()` requests
+- **Backend:** Node.js + Express.js
+- **Database:** PostgreSQL (`pg` connection pool)
+- **Guidance System:** KAAL AI wisdom engine (Gemini API integration with contextual fallback)
 
 ---
 
-## 📁 Project Structure
+## 📁 Clean Folder Structure
 
 ```text
 mini-kaal-ai/
 ├── backend/
-│   ├── db.js             # PostgreSQL connection and table initialization
-│   ├── server.js         # Express server and API routes (/api/ask, /api/history)
+│   ├── db.js             # PostgreSQL connection pool & auto table initialization
+│   ├── server.js         # Express server serving static frontend & REST API
 │   ├── .env.example      # Example environment variables
+│   ├── .env              # Local environment variables
 │   └── package.json      # Backend dependencies (express, cors, dotenv, pg)
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── App.jsx       # Main React component (state, form, response & history)
-│   │   ├── App.css       # Clean responsive styles for mobile & desktop
-│   │   ├── main.jsx      # React entry point
-│   │   └── index.css     # Global reset and typography
-│   ├── index.html        # HTML entry point
-│   ├── vite.config.js    # Vite configuration
-│   └── package.json      # Frontend dependencies (React, Vite)
+│   ├── index.html        # Clean, semantic HTML5 structure
+│   ├── style.css         # Responsive styling with KAAL AI navy & gold theme
+│   └── script.js         # Vanilla JavaScript handling DOM & fetch() calls
 │
-├── .gitignore            # Git ignore rules for node_modules, .env, and dist
-└── README.md             # Setup guide, explanation of approach & challenges
+├── package.json          # Root convenience script ("npm start")
+├── .gitignore            # Ignores node_modules, .env, and OS logs
+└── README.md             # Complete setup guide, architecture & submission text
 ```
 
 ---
 
-## 🌟 Features
+## 🌟 Key Features
 
-1. **Ask for Guidance:**
-   - Text input box for user questions with clear placeholder examples.
-   - Submit button that triggers guidance generation.
-   - Basic input validation (prevents empty submissions or whitespace).
+1. **Question Input & Validation:**
+   - Textarea for typing questions with placeholder guidance.
+   - Prevents empty or whitespace-only submissions with clear error alerts.
+   - Disables submit button during processing to prevent accidental double-submits.
 
-2. **Guidance Response Display:**
-   - Featured card displaying the latest question and the guidance response.
-   - Formatted date and time stamp.
+2. **Instant Guidance Generation:**
+   - Features latest guidance card with question, response, and formatted timestamp.
+   - Mindful guidance aligned with KAAL AI's mental wellness philosophy (support for live Gemini API key + built-in fallback logic).
 
-3. **Previous Questions (History):**
-   - Automatically loads previous guidance history on startup.
+3. **Previous Guidance (History):**
+   - Automatically fetched using `fetch('/api/history')` on page load.
    - Ordered by newest first (reverse chronological order).
-   - Empty state message when no queries exist.
+   - Empty state message if no questions exist.
 
-4. **Loading & Error States:**
-   - Animated loading spinner when guidance is being generated.
-   - User-friendly error messages if validation fails or server is unreachable.
-   - Disabled button state while request is processing to prevent duplicate submissions.
+4. **Loading & Error Handling:**
+   - Animated spinner while waiting for guidance response.
+   - Clear red error notification box if validation fails or server is unreachable.
 
 5. **Responsive Design:**
    - 2-column layout on desktop screens.
-   - Clean single-column layout on mobile devices.
+   - Clean stacked layout on mobile devices.
 
 ---
 
-## 🛠️ Step-by-Step Setup Instructions
+## 🚀 Step-by-Step Setup Instructions
 
 ### 1. Prerequisites
 - **Node.js** (v18 or higher)
-- **PostgreSQL** installed and running locally (or a cloud PostgreSQL URL like Supabase/Neon)
+- **PostgreSQL** running locally on port 5432 (or a hosted cloud PostgreSQL URL)
 
 ---
 
 ### 2. Database Setup
 
-1. Make sure your PostgreSQL server is running.
-2. Create a database (e.g. `postgres` or `kaal_ai_db`):
-   ```bash
-   createdb kaal_ai_db
-   ```
-   *(Note: The application automatically creates the `queries` table on startup if it doesn't already exist! You do not need to manually write any `CREATE TABLE` commands.)*
+Make sure your PostgreSQL server is running.
+The application connects to `postgresql://localhost:5432/postgres` by default.
+
+> **Zero Manual SQL Setup:** The app automatically creates the `queries` table on boot (`CREATE TABLE IF NOT EXISTS queries ...`). You do NOT need to run any manual migration scripts!
 
 ---
 
-### 3. Backend Setup
+### 3. Run the Application (Single Command!)
 
-1. Open your terminal and navigate to the `backend` folder:
+From the root project folder:
+
+1. Install backend dependencies (if not already installed):
    ```bash
    cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
    npm install
+   cd ..
    ```
 
-3. Create your `.env` file (you can copy `.env.example`):
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Configure your `.env` values:
-   ```env
-   PORT=5001
-   DATABASE_URL=postgresql://localhost:5432/postgres
-   # Optional: Add your Gemini API key if you want live AI responses
-   # GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-
-5. Start the backend server:
+2. Start the server:
    ```bash
    npm start
    ```
-   You should see:
-   ```text
-   Connected to PostgreSQL successfully!
-   Table "queries" is ready.
-   Server is running on http://localhost:5001
+
+3. Open your browser and go to:
    ```
+   http://localhost:5001
+   ```
+
+Because Express directly serves the `frontend/` folder, both the frontend UI and backend REST API run together seamlessly on **`http://localhost:5001`** with zero build tools!
 
 ---
 
-### 4. Frontend Setup
-
-1. Open a new terminal window and navigate to the `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser and visit:
-   ```
-   http://localhost:5173
-   ```
-
----
-
-## 📡 API Endpoints
+## 📡 REST API Documentation
 
 ### 1. `GET /api/history`
-- **Description:** Fetches all saved questions and guidance responses.
-- **Response:**
+- **Method:** `GET`
+- **Description:** Returns all previous questions, answers, and timestamps ordered by newest first.
+- **Example Response:**
   ```json
   [
     {
       "id": 1,
-      "question": "How can I prepare for a software developer interview as a fresher?",
-      "response": "Focus on mastering core problem-solving and fundamental skills...",
-      "created_at": "2026-10-19T08:52:23.581Z"
+      "question": "How do I find clarity when faced with two difficult choices?",
+      "response": "Whenever clarity feels distant, quiet the noise and look inward...",
+      "created_at": "2026-10-19T10:09:14.707Z"
     }
   ]
   ```
 
 ### 2. `POST /api/ask`
-- **Description:** Submits a question, generates guidance, and stores it in PostgreSQL.
+- **Method:** `POST`
+- **Description:** Submits a question, generates guidance, saves to PostgreSQL, and returns the created record.
 - **Request Body:**
   ```json
   {
-    "question": "How do I debug a tricky coding bug?"
+    "question": "How can I handle stress and worry about my career?"
   }
   ```
-- **Response (201 Created):**
+- **Success Response (201 Created):**
   ```json
   {
     "id": 2,
-    "question": "How do I debug a tricky coding bug?",
-    "response": "Carefully read the error stack trace to locate the exact file and line...",
-    "created_at": "2026-10-19T09:04:58.566Z"
+    "question": "How can I handle stress and worry about my career?",
+    "response": "Take a deep breath and pause. As timeless wisdom teaches...",
+    "created_at": "2026-10-19T10:10:00.000Z"
   }
   ```
 - **Validation Error (400 Bad Request):**
@@ -189,26 +178,25 @@ mini-kaal-ai/
 
 ---
 
-## 💡 Approach and Challenges Faced
+## 💡 Explanation of Approach & Challenges
 
 ### Approach
-1. **Simplicity First:** Kept the architecture clean, modular, and easy to explain. Rather than overcomplicating with unnecessary libraries, I used standard Express for the backend and React with standard CSS for the frontend.
-2. **PostgreSQL Integration:** Configured a connection pool using `pg`. To make setup effortless for evaluators, I implemented an automatic table creation query (`CREATE TABLE IF NOT EXISTS queries ...`) that runs when the server boots.
-3. **Robust Guidance Generator:** The application supports both live AI (via Gemini API) and a built-in contextual fallback system. This guarantees that anyone running or evaluating the application locally gets meaningful guidance without needing to provide an API key.
-4. **User Experience:** Added complete loading and error handling states, input trimming validation, and a responsive layout that looks great on mobile and desktop.
+1. **True Simplicity:** Built without bulky frameworks. Plain HTML, CSS, and Vanilla JavaScript make the codebase 100% transparent, lightweight, and easy to explain line-by-line.
+2. **Unified Single-Server Deployment:** Configured Express to serve the static frontend files directly. This eliminates the need for separate dev servers (like Vite/Webpack) and avoids any CORS issues in production.
+3. **Database Automation:** Automatic table creation in `db.js` ensures anyone who clones the repository can run `npm start` immediately without manually creating tables in PostgreSQL.
+4. **Resilient Guidance Engine:** The guidance generator seamlessly supports live AI models if `GEMINI_API_KEY` is present in `.env`, while providing high-quality contextual fallback guidance if run without an API key.
 
 ### Challenges Faced & Solutions
-1. **Port Conflicts on macOS:** macOS Monterey/Ventura/Sonoma reserves port 5000 for the AirPlay Receiver service (`commplex-main`), which causes `EADDRINUSE` errors.
-   - *Solution:* Configured the backend to run on port `5001` by default and mapped the frontend `API_URL` to match.
-2. **Database Table Synchronization:** In a fresh environment, evaluators might forget to create tables before running the app.
-   - *Solution:* Built an automatic table initialization step into `db.js` so the table is created seamlessly upon running `npm start`.
-3. **Handling AI Availability:** Relying solely on a third-party AI API key could break the app if an evaluator tests without one.
-   - *Solution:* Implemented a dual-mode guidance response generator that uses the API if `GEMINI_API_KEY` is present in `.env`, and smoothly falls back to contextual guidance logic if it is omitted.
+1. **macOS Port 5000 Conflict:** On macOS Monterey and later, Apple's AirPlay Receiver reserves port 5000 (`commplex-main`), triggering `EADDRINUSE`.
+   - *Solution:* Set the backend port to `5001`.
+2. **Framework Overhead Removal:** Modern setups often introduce complex toolchains that make basic CRUD apps hard to inspect.
+   - *Solution:* Replaced Vite and React with semantic HTML5 and Vanilla DOM manipulation using standard `document.getElementById` and native `fetch()`.
+3. **Smooth Local Evaluation:** Evaluators often don't have time to create database tables or configure third-party API keys.
+   - *Solution:* Automated table creation and dual-mode AI/fallback guidance ensure the app works flawlessly out of the box.
 
 ---
 
-## 🌐 Live Deployment Guide
+## 🌐 Deployment Options
 
 - **Database:** Free hosted PostgreSQL instance on [Neon](https://neon.tech) or [Supabase](https://supabase.com).
-- **Backend:** Deploy `backend` to [Render](https://render.com) or [Railway](https://railway.app), set `DATABASE_URL` in environment variables.
-- **Frontend:** Deploy `frontend` to [Vercel](https://vercel.com) or [Netlify](https://netlify.com), set `VITE_API_URL` to your live backend URL.
+- **Web Service:** Deploy the full repo to [Render](https://render.com) or [Railway](https://railway.app). Set build command to `cd backend && npm install` and start command to `node backend/server.js`.
