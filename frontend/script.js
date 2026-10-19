@@ -1,8 +1,8 @@
-// Base API URL
-// If running on port 5001 directly, use relative path. Otherwise default to localhost:5001
+// API Base URL
+// Uses relative path when running on port 5001, otherwise defaults to localhost:5001
 const API_URL = window.location.port === '5001' ? '' : 'http://localhost:5001';
 
-// DOM Elements
+// Get DOM elements
 const questionForm = document.getElementById('question-form');
 const questionInput = document.getElementById('question-input');
 const submitBtn = document.getElementById('submit-btn');
@@ -14,15 +14,22 @@ const responseText = document.getElementById('response-text');
 const responseTime = document.getElementById('response-time');
 const historyList = document.getElementById('history-list');
 
-// Helper function to format timestamp
+// Format date and time
 function formatDate(dateString) {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString() + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// Function to fetch previous questions from the backend API
-async function fetchHistory() {
+// Escape HTML characters to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Fetch history from backend API
+async function loadHistory() {
   try {
     const res = await fetch(`${API_URL}/api/history`);
     if (!res.ok) {
@@ -31,60 +38,50 @@ async function fetchHistory() {
     const data = await res.json();
     renderHistory(data);
   } catch (err) {
-    console.error('History fetch error:', err);
-    historyList.innerHTML = '<p class="empty-state">Could not load history. Please ensure backend is running.</p>';
+    console.error('Error loading history:', err);
+    historyList.innerHTML = '<p class="empty-state">Could not load history. Please make sure the server is running.</p>';
   }
 }
 
-// Function to render history items in the DOM
+// Render history list
 function renderHistory(items) {
   if (!items || items.length === 0) {
-    historyList.innerHTML = '<p class="empty-state">No previous questions yet. Ask your first question above!</p>';
+    historyList.innerHTML = '<p class="empty-state">No previous questions found.</p>';
     return;
   }
 
   historyList.innerHTML = '';
   items.forEach((item) => {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'history-item';
-    itemDiv.innerHTML = `
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
       <div class="history-item-header">
-        <strong class="item-question">Q: ${escapeHtml(item.question)}</strong>
+        <strong>Question: ${escapeHtml(item.question)}</strong>
         <span class="timestamp">${formatDate(item.created_at)}</span>
       </div>
-      <p class="item-response">${escapeHtml(item.response)}</p>
+      <p><strong>Guidance:</strong> ${escapeHtml(item.response)}</p>
     `;
-    historyList.appendChild(itemDiv);
+    historyList.appendChild(div);
   });
 }
 
-// Helper to escape HTML and prevent XSS injection
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// Form submit event handler
+// Handle form submit
 questionForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const question = questionInput.value.trim();
 
-  // Basic input validation
+  // Basic validation
   if (!question) {
     showError('Please enter a question before submitting.');
     return;
   }
 
-  // Clear previous error
   hideError();
-
-  // Set loading state
   setLoading(true);
 
   try {
-    // Send POST request to backend REST API using fetch()
+    // Send POST request to backend API
     const res = await fetch(`${API_URL}/api/ask`, {
       method: 'POST',
       headers: {
@@ -96,11 +93,11 @@ questionForm.addEventListener('submit', async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to generate guidance.');
+      throw new Error(data.error || 'Failed to submit question.');
     }
 
-    // Display the latest guidance card
-    responseQuestion.textContent = `Q: ${data.question}`;
+    // Display latest response
+    responseQuestion.textContent = data.question;
     responseText.textContent = data.response;
     responseTime.textContent = formatDate(data.created_at);
     responseBox.style.display = 'block';
@@ -108,32 +105,34 @@ questionForm.addEventListener('submit', async (e) => {
     // Clear input field
     questionInput.value = '';
 
-    // Reload history to include the new response at the top
-    fetchHistory();
+    // Refresh history
+    loadHistory();
   } catch (err) {
     console.error('Submit error:', err);
-    showError(err.message || 'Cannot reach the backend server. Please make sure it is running.');
+    showError(err.message || 'Cannot connect to backend server.');
   } finally {
     setLoading(false);
   }
 });
 
-// Helper functions for UI states
+// Helper: Show error message
 function showError(msg) {
   errorBox.textContent = msg;
   errorBox.style.display = 'block';
 }
 
+// Helper: Hide error message
 function hideError() {
   errorBox.textContent = '';
   errorBox.style.display = 'none';
 }
 
+// Helper: Toggle loading state
 function setLoading(isLoading) {
   if (isLoading) {
-    loadingBox.style.display = 'flex';
+    loadingBox.style.display = 'block';
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Generating guidance...';
+    submitBtn.textContent = 'Submitting...';
   } else {
     loadingBox.style.display = 'none';
     submitBtn.disabled = false;
@@ -141,12 +140,12 @@ function setLoading(isLoading) {
   }
 }
 
-// Clear error on input typing
+// Clear error message when user starts typing
 questionInput.addEventListener('input', () => {
   if (errorBox.style.display !== 'none') {
     hideError();
   }
 });
 
-// Load history when page opens
-fetchHistory();
+// Load history on page load
+loadHistory();
