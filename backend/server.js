@@ -1,6 +1,3 @@
-// Mini KAAL AI Guidance App - Backend Server
-
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
