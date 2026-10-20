@@ -1,5 +1,5 @@
 // Mini KAAL AI Guidance App - Backend Server
-// Developed by Anuj Behra
+
 
 const express = require('express');
 const cors = require('cors');
