@@ -4,67 +4,16 @@ A full-stack web application built for the **KAAL AI Technical Evaluation Assign
 
 ---
 
-## 🚀 Tech Stack
+##  Tech Stack
 
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript (Browser-native `fetch()`)
 - **Backend:** Node.js, Express.js
 - **Database:** PostgreSQL (`pg` connection pool)
 - **Guidance Engine:** Google Gemini AI API (with built-in contextual fallback guidance)
 
----
 
-## 🏛️ Architecture Flow
 
-```text
-┌────────────────────────────────────────────────────────┐
-│                        Frontend                        │
-│                 HTML + CSS + JavaScript                │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                        REST API                        │
-│               JavaScript fetch() requests              │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                        Backend                         │
-│                   Node.js + Express.js                 │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│                       PostgreSQL                       │
-│              Questions, answers, timestamps            │
-└────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Project Structure
-
-```text
-mini-kaal-ai/
-├── backend/
-│   ├── db.js             # PostgreSQL connection pool & automatic table creation
-│   ├── server.js         # Express server, static file serving, and REST APIs
-│   ├── .env.example      # Sample environment variables
-│   └── package.json      # Backend dependencies (express, cors, dotenv, pg)
-│
-├── frontend/
-│   ├── index.html        # Clean semantic HTML5 layout
-│   ├── style.css         # Simple, responsive styling for mobile & desktop
-│   └── script.js         # Client-side validation, DOM updates & fetch() calls
-│
-├── package.json          # Root scripts ("npm start" starts the full application)
-├── .gitignore            # Ignores node_modules, .env, and local artifacts
-└── README.md             # Project documentation and setup guide
-```
-
----
-
-## 🌟 Key Features
+##  Key Features
 
 1. **Question Input & Validation:**
    - Textarea for typing questions with clear placeholder instructions.
@@ -90,7 +39,7 @@ mini-kaal-ai/
 
 ---
 
-## 🛠️ Step-by-Step Local Setup
+##  Step-by-Step Local Setup
 
 ### 1. Prerequisites
 - **Node.js** (v18 or higher)
@@ -137,7 +86,7 @@ mini-kaal-ai/
 
 ---
 
-## 📡 REST API Endpoints
+##  REST API Endpoints
 
 ### 1. `GET /api/history`
 - **Description:** Returns past questions, guidance responses, and timestamps ordered newest first.
@@ -179,7 +128,7 @@ mini-kaal-ai/
 
 ---
 
-## ☁️ Deployment on Render
+##  Deployment on Render
 
 This application is ready to deploy directly on **Render**:
 
@@ -203,7 +152,7 @@ Your live URL will be ready at: `https://mini-kaal-ai-xxxx.onrender.com`
 
 ---
 
-## 💡 Approach and Challenges Faced
+##  Approach and Challenges Faced
 
 ### Approach
 1. **Lightweight & Transparent Architecture:** Built with pure HTML, CSS, and Vanilla JavaScript on the frontend, served directly by Express. This eliminates heavy bundlers and complex toolchains, keeping the codebase easy to read, test, and maintain.
