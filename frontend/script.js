@@ -1,4 +1,3 @@
-// Base API URL: relative path when served by Express (both locally & in production)
 const API_URL = (window.location.port && window.location.port !== '5001')
   ? 'http://localhost:5001'
   : '';
